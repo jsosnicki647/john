@@ -26,9 +26,7 @@ module.exports = app => {
             results.push(dbArticle);
           })
       });
-      res.render("index", {
-        articles: results
-      });
+      res.status(200).end()
     })
   })
 
@@ -36,7 +34,10 @@ module.exports = app => {
     db.Article.find({})
       .populate("note")
       .then(function (dbArticle) {
-        res.json(dbArticle);
+        console.log(dbArticle)
+        res.render("index", {
+          articles: dbArticle
+        });
       })
       .catch(function (err) {
         res.json(err);
@@ -44,41 +45,46 @@ module.exports = app => {
   });
 
   app.put("/save", (req, res) => {
-    db.Article.update({_id: mongojs.ObjectId(req.body.id)}, {$set: {saved: true}}, (err, updated) => {
-      if(err){
-        console.log(err)
+    db.Article.update({
+      _id: mongojs.ObjectId(req.body.id)
+    }, {
+      $set: {
+        saved: true
       }
-      else{
+    }, (err, updated) => {
+      if (err) {
+        console.log(err)
+      } else {
         console.log(updated)
         res.status(200).end()
       }
     })
   })
 
-    app.post("/save", (req, res) => {
+  app.post("/save", (req, res) => {
 
-        db.Article.find({
-            title: req.body.title
-        }, (err, found) => {
-            if (found.length > 0) {
-                res.send("already saved")
-            } else {
-                const newArticle = {
-                    title: req.body.title,
-                    teaser: req.body.teaser,
-                    link: req.body.link
-                }
+    db.Article.find({
+      title: req.body.title
+    }, (err, found) => {
+      if (found.length > 0) {
+        res.send("already saved")
+      } else {
+        const newArticle = {
+          title: req.body.title,
+          teaser: req.body.teaser,
+          link: req.body.link
+        }
 
-                db.Article.create(newArticle, (err, inserted) => {
-                    if (err) {
-                        console.log(err)
-                    } else {
-                        console.log("INSERTED: " + inserted)
-                        res.status(200).end()
-                    }
-                })
-            }
+        db.Article.create(newArticle, (err, inserted) => {
+          if (err) {
+            console.log(err)
+          } else {
+            console.log("INSERTED: " + inserted)
+            res.status(200).end()
+          }
         })
+      }
     })
+  })
 
 }

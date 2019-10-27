@@ -3,15 +3,20 @@ $(document).ready(function () {
         $("#clickedArticles").text("");
         $.ajax({
             method: "GET",
-            url: "/scrape",
-        }).then(function () {
-            window.location.href = window.location.origin + "/scrape"
+            url: "/scrape"
+        }).then(() => {
+            $.ajax({
+                method: "GET",
+                url: "/articles"
+            }).then(() => window.location.href = window.location.origin + "/articles")
         })
     })
 
     $(".save").on("click", (e) => {
         const id = $(e.target).data("id")
-        $.put("/save", {id:id}, () => console.log("saved"))
+        $.put("/save", {
+            id: id
+        }, () => console.log("saved"))
     })
 
     $.put = function (url, data, callback, type) {
